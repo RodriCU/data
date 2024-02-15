@@ -1,0 +1,32 @@
+function checkStatusCodeOne() {
+  try {
+    var url = 'https://ejemplo.com/';  // url a editar
+    const measurement_id = `G-...`;   // GA4 id
+    const api_secret = `tuAPI....`;  // api del protocolo de medición de GA4
+    var response = UrlFetchApp.fetch(url);
+    var code = response.getResponseCode();
+    Logger.log('Status code: ' + code);
+
+    if ([500, 501, 502, 503, 504, 505, 506, 507, 508, 510, 511].indexOf(code) > -1) {
+      var email = 'tumail@ontopmedia.es';  // editamos el email donde recibir los avisos
+      var subject = 'Error status ' + code;
+      var body = 'The URL ' + url + ' returned a status code of ' + code + '.';
+      MailApp.sendEmail(email, subject, body);
+
+      UrlFetchApp.fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}`, {
+      method: "POST",
+      payload: JSON.stringify({
+        "client_id": '999999.999999',
+        "events": [{
+          "name": 'exception', // nombre del evento que queremos enviar a GA4
+          "params": {
+            "description": 'error servidor ' + code  // parámetro del evento que queremos enviar a GA4
+          },
+        }],
+      })
+    });
+    }
+  } catch (e) {
+    Logger.log(e.toString());
+  }
+}
