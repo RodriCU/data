@@ -1,0 +1,28 @@
+function contarCoincidencias() {
+  const urls = [
+    'https://ejemplo.com/sitemap_0-product.xml',
+    'https://ejemplo.com/sitemap_1-product.xml'  
+  ];
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
+  try {
+    // Obtener la fecha actual
+    const fecha = new Date();
+    
+    // Recorrer las URLs
+    urls.forEach(url => {
+      const response = UrlFetchApp.fetch(url);
+      const data = response.getContentText();
+      
+      // Contar coincidencias de ".html" que es el patrón detectado para identificar urls en el sitemap de producto
+      const coincidencias = (data.match(/\.html/g) || []).length;
+
+      // Almacenar fecha y coincidencias en la hoja
+      sheet.appendRow([fecha, coincidencias]);
+    });
+    
+  } catch (error) {
+    Logger.log('Error al acceder a las URLs: ' + error);
+  }
+}
+
